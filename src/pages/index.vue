@@ -1,7 +1,95 @@
 <template>
-  <div>hello</div>
+  <div>
+    <div class="input-box">
+      <span class="play_song">Choose music </span>
+      <input type="file" id="load-file" @change="loadFile" />
+    </div>
+    <div class="stage"></div>
+    <ul id="fileList">
+      <li v-for="(item, index) in fileList" :key="index">
+        <span class="num">{{ item.num }}</span>
+        <span class="song">{{ item.name }}</span>
+      </li>
+    </ul>
+  </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from "vue";
+import { fileListTypeInt } from "../type/index";
 
-<style scoped></style>
+let fileList = ref<Array<fileListTypeInt>>([]);
+let loadFile = (e: Event) => {
+  const input = e.target as HTMLInputElement;
+  let files = input.files;
+  if (files) {
+    const file = files[0];
+
+    for (let i = 0; i < fileList.value.length; i++) {
+      if (file.name === fileList.value[i].name) {
+        console.log("repeat!!!!");
+        return;
+      }
+    }
+
+    const file_ty: fileListTypeInt = {
+      num: fileList.value.length + 1,
+      name: file.name,
+    };
+    fileList.value.push(file_ty);
+  }
+};
+</script>
+
+<style scoped>
+.input-box {
+  width: 150px;
+  background: #31c27c;
+  border: 1px solid #31c27c;
+  margin: 20px auto;
+  color: #fff;
+  border-radius: 2px;
+  line-height: 30px;
+  text-align: center;
+  position: relative;
+}
+.play_song {
+  width: 152px;
+  line-height: 30px;
+  position: absolute;
+  left: 50%;
+  margin-left: -76px;
+}
+#load-file {
+  width: 150px;
+  opacity: 0;
+  cursor: pointer;
+}
+#fileList {
+  background: #eee;
+  width: 300px;
+  margin: 0 auto;
+  list-style: none;
+  max-height: 170px;
+  overflow-y: auto;
+  padding: 0;
+}
+#fileList li {
+  line-height: 24px;
+  padding: 5px 0px;
+  overflow: hidden;
+}
+.num {
+  color: #999;
+  float: left;
+  width: 36px;
+  text-align: center;
+}
+.song {
+  color: #000;
+  float: left;
+}
+.selected {
+  color: #31c27c;
+}
+</style>
