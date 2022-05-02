@@ -2,7 +2,7 @@
   <div>
     <div class="input-box">
       <span class="play_song">Choose music </span>
-      <input type="file" id="load-file" @change="loadFile" />
+      <input type="file" id="load-file" @change="loadFile" multiple />
     </div>
     <div class="stage"></div>
     <ul id="fileList">
@@ -31,21 +31,27 @@ let loadFile = (e: Event) => {
   const input = e.target as HTMLInputElement;
   let files = input.files;
   if (files) {
-    const file = files[0];
+    console.log(files.length);
 
-    for (let i = 0; i < fileList.value.length; i++) {
-      if (file.name === fileList.value[i].name) {
-        console.log("repeat!!!!");
-        return;
+    for (let index = 0; index < files.length; index++) {
+      const file: File = files[index];
+      let flag: boolean = false;
+      for (let i = 0; i < fileList.value.length; i++) {
+        if (file.name === fileList.value[i].name) {
+          console.log("repeat!!!!");
+          flag = true;
+          break;
+        }
+      }
+      if (!flag) {
+        const file_ty: fileListTypeInt = {
+          num: fileList.value.length + 1,
+          name: file.name,
+          file: file,
+        };
+        fileList.value.push(file_ty);
       }
     }
-
-    const file_ty: fileListTypeInt = {
-      num: fileList.value.length + 1,
-      name: file.name,
-      file: file,
-    };
-    fileList.value.push(file_ty);
   }
 };
 
@@ -69,8 +75,16 @@ let paly = (file: File) => {
       audioBufferSourceNode.loop = true;
       audioBufferSourceNode.start(0);
     });
+    getMusicData();
   };
   fr.readAsArrayBuffer(file);
+};
+
+// 加载音乐波形分析器
+let getMusicData = () => {
+  const audioInfoArray: Uint8Array = new Uint8Array(analyser.frequencyBinCount);
+  analyser.getByteFrequencyData(audioInfoArray);
+  console.log(audioInfoArray);
 };
 </script>
 
