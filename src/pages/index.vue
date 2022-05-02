@@ -27,7 +27,7 @@
 import { onMounted, ref } from "vue";
 import { fileListTypeInt } from "../type/index";
 import anime from "animejs/lib/anime.es.js";
-import Rainbow from "../assets/js/color.js";
+import Rainbow from "../assets/js/color";
 // import Rainbow from "../js/color.js";
 let selected = ref<string>("");
 let totalEls = ref<Array<number>>([]);
