@@ -4,7 +4,7 @@
       <span class="play_song">Choose music </span>
       <input type="file" id="load-file" @change="loadFile" multiple />
     </div>
-    <div class="stage"></div>
+    <div class="stage" ref="stage"></div>
     <ul id="fileList">
       <li
         v-for="(item, index) in fileList"
@@ -21,10 +21,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { fileListTypeInt } from "../type/index";
+import anime from "animejs/lib/anime.es.js";
 
 let selected = ref<string>("");
+let stage = ref<HTMLDivElement | null>(null);
+let stageDivEl: HTMLDivElement;
+
+onMounted(() => {
+  stageDivEl = stage.value as HTMLDivElement;
+  console.log(stageDivEl);
+});
 
 let fileList = ref<Array<fileListTypeInt>>([]);
 let loadFile = (e: Event) => {
@@ -86,6 +94,29 @@ let getMusicData = () => {
   const audioInfoArray: Uint8Array = new Uint8Array(analyser.frequencyBinCount);
   analyser.getByteFrequencyData(audioInfoArray);
 };
+
+// 初始化stage div
+let initDiv = (num: number) => {
+  setTimeout(() => {
+    for (let i = 0; i < num; i++) {
+      console.log(i);
+      let divEl: HTMLDivElement = document.createElement("div");
+      divEl.style.width = "10px";
+      divEl.style.height = "3px";
+      divEl.style.background = "red";
+      divEl.style.position = "absolute";
+      stageDivEl.append(divEl);
+      anime({
+        targets: divEl,
+        translateX: [0, i * 10],
+        translateY: [0, 200],
+        loop: false,
+        duration: 1000,
+      });
+    }
+  }, 100);
+};
+initDiv(60);
 </script>
 
 <style scoped>
@@ -141,5 +172,10 @@ let getMusicData = () => {
 }
 .selected {
   color: #31c27c;
+}
+.el {
+  width: 10px;
+  height: 3px;
+  background: red;
 }
 </style>
