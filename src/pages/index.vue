@@ -82,9 +82,9 @@ let paly = (file: File) => {
 
 // 加载音乐波形分析器
 let getMusicData = () => {
+  requestAnimationFrame(getMusicData);
   const audioInfoArray: Uint8Array = new Uint8Array(analyser.frequencyBinCount);
   analyser.getByteFrequencyData(audioInfoArray);
-  console.log(audioInfoArray);
 };
 </script>
 
