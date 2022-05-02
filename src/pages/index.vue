@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="root" class="rootDiv">
     <div class="input-box">
       <span class="play_song">Choose music </span>
       <input type="file" id="load-file" @change="loadFile" multiple />
@@ -27,11 +27,13 @@ import anime from "animejs/lib/anime.es.js";
 
 let selected = ref<string>("");
 let stage = ref<HTMLDivElement | null>(null);
+let root = ref<HTMLDivElement | null>(null);
 let stageDivEl: HTMLDivElement;
+let rootEl: HTMLDivElement;
 
 onMounted(() => {
   stageDivEl = stage.value as HTMLDivElement;
-  console.log(stageDivEl);
+  rootEl = root.value as HTMLDivElement;
 });
 
 let fileList = ref<Array<fileListTypeInt>>([]);
@@ -96,10 +98,13 @@ let getMusicData = () => {
 };
 
 // 初始化stage div
-let initDiv = (num: number) => {
+let initDiv = (num: number, r: number) => {
   setTimeout(() => {
+    const winWidth = rootEl.clientWidth;
+    const winHeight = rootEl.clientHeight;
+    const avd = 360 / num;
+    const ahd = (avd * Math.PI) / 180;
     for (let i = 0; i < num; i++) {
-      console.log(i);
       let divEl: HTMLDivElement = document.createElement("div");
       divEl.style.width = "10px";
       divEl.style.height = "3px";
@@ -108,18 +113,22 @@ let initDiv = (num: number) => {
       stageDivEl.append(divEl);
       anime({
         targets: divEl,
-        translateX: [0, i * 10],
-        translateY: [0, 200],
+        translateX: [winWidth / 2, winWidth / 2 + Math.sin(ahd * i) * r],
+        translateY: [winHeight / 2, winHeight / 2 + Math.cos(ahd * i) * r],
+        rotate: [-(avd * i)],
         loop: false,
         duration: 1000,
       });
     }
   }, 100);
 };
-initDiv(60);
+initDiv(60, 100);
 </script>
 
 <style scoped>
+.rootDiv {
+  height: 100vh;
+}
 .input-box {
   width: 150px;
   background: #31c27c;
