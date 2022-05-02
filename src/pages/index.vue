@@ -4,7 +4,9 @@
       <span class="play_song">Choose music </span>
       <input type="file" id="load-file" @change="loadFile" multiple />
     </div>
-    <div class="stage" ref="stage"></div>
+    <div class="stage" ref="stage">
+      <div v-for="i in totalEls" :key="i" class="el"></div>
+    </div>
     <ul id="fileList">
       <li
         v-for="(item, index) in fileList"
@@ -21,11 +23,14 @@
 </template>
 
 <script setup lang="ts">
+/// <refrence path="../js/color.d.ts" />;
 import { onMounted, ref } from "vue";
 import { fileListTypeInt } from "../type/index";
 import anime from "animejs/lib/anime.es.js";
-
+import Rainbow from "../assets/js/color.js";
+// import Rainbow from "../js/color.js";
 let selected = ref<string>("");
+let totalEls = ref<Array<number>>([]);
 let stage = ref<HTMLDivElement | null>(null);
 let root = ref<HTMLDivElement | null>(null);
 let stageDivEl: HTMLDivElement;
@@ -72,7 +77,8 @@ let analyser: AnalyserNode = audioCtx.createAnalyser();
 let paly = (file: File) => {
   selected.value = file.name;
   let fr: FileReader = new FileReader();
-  fr.onload = (e) => {
+  fr.onload = (e: any) => {
+    console.log(typeof e);
     audioCtx.decodeAudioData(e.target?.result).then((buffer) => {
       if (audioBufferSourceNode != null) {
         audioBufferSourceNode.stop();
@@ -95,24 +101,39 @@ let getMusicData = () => {
   requestAnimationFrame(getMusicData);
   const audioInfoArray: Uint8Array = new Uint8Array(analyser.frequencyBinCount);
   analyser.getByteFrequencyData(audioInfoArray);
+  animeDiv(audioInfoArray);
 };
 
 // 初始化stage div
 let initDiv = (num: number, r: number) => {
+  for (let i = 0; i < num; i++) {
+    totalEls.value.push(i);
+  }
+  let rainbow = new Rainbow();
+  rainbow.setNumberRange(1, num);
+  rainbow.setSpectrum("#16a5a3", "#da2864");
+  //   var s = "";
+  //   for (var i = 1; i <= numberOfItems; i++) {
+  //     var hexColour = rainbow.colourAt(i);
+  //     s += "＃" + hexColour + ",";
+  //     console.log(s);
+  //   }
+
   setTimeout(() => {
     const winWidth = rootEl.clientWidth;
     const winHeight = rootEl.clientHeight;
     const avd = 360 / num;
     const ahd = (avd * Math.PI) / 180;
-    for (let i = 0; i < num; i++) {
-      let divEl: HTMLDivElement = document.createElement("div");
-      divEl.style.width = "10px";
-      divEl.style.height = "3px";
-      divEl.style.background = "red";
-      divEl.style.position = "absolute";
-      stageDivEl.append(divEl);
+    for (let i = 0; i < stageDivEl.children.length; i++) {
+      const hexColour = rainbow.colourAt(i);
+      const color = "#" + hexColour;
+      stageDivEl.children[i].setAttribute(
+        "style",
+        "background-color:" + color + ";box-shadow:0px 0px 10px" + color
+      );
+
       anime({
-        targets: divEl,
+        targets: stageDivEl.children[i],
         translateX: [winWidth / 2, winWidth / 2 + Math.sin(ahd * i) * r],
         translateY: [winHeight / 2, winHeight / 2 + Math.cos(ahd * i) * r],
         rotate: [-(avd * i)],
@@ -123,6 +144,21 @@ let initDiv = (num: number, r: number) => {
   }, 100);
 };
 initDiv(60, 100);
+
+// 形成动画
+let animeDiv = (audioInfoArray: Uint8Array) => {
+  for (let i = 0; i < stageDivEl.children.length; i++) {
+    stageDivEl.children[i].className = "el";
+    if (audioInfoArray[i] === 0) {
+      audioInfoArray[i] = 4;
+    }
+    anime({
+      targets: stageDivEl.children[i],
+      height: [audioInfoArray[i] / 2],
+      duration: 1,
+    });
+  }
+};
 </script>
 
 <style scoped>
@@ -185,6 +221,8 @@ initDiv(60, 100);
 .el {
   width: 10px;
   height: 3px;
-  background: red;
+  position: absolute;
+  background: palevioletred;
+  -webkit-transform-origin: 0% 0%;
 }
 </style>
