@@ -6,9 +6,15 @@
     </div>
     <div class="stage"></div>
     <ul id="fileList">
-      <li v-for="(item, index) in fileList" :key="index">
+      <li
+        v-for="(item, index) in fileList"
+        :key="index"
+        @click="paly(item.file)"
+      >
         <span class="num">{{ item.num }}</span>
-        <span class="song">{{ item.name }}</span>
+        <span class="song" :class="selected === item.name ? 'selected' : ''">{{
+          item.name
+        }}</span>
       </li>
     </ul>
   </div>
@@ -17,6 +23,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { fileListTypeInt } from "../type/index";
+
+let selected = ref<string>("");
 
 let fileList = ref<Array<fileListTypeInt>>([]);
 let loadFile = (e: Event) => {
@@ -35,9 +43,34 @@ let loadFile = (e: Event) => {
     const file_ty: fileListTypeInt = {
       num: fileList.value.length + 1,
       name: file.name,
+      file: file,
     };
     fileList.value.push(file_ty);
   }
+};
+
+//  music play
+let audioCtx: AudioContext = new window.AudioContext();
+let audioBufferSourceNode: AudioBufferSourceNode | null = null;
+let analyser: AnalyserNode = audioCtx.createAnalyser();
+let paly = (file: File) => {
+  selected.value = file.name;
+  let fr: FileReader = new FileReader();
+  fr.onload = (e) => {
+    audioCtx.decodeAudioData(e.target?.result).then((buffer) => {
+      if (audioBufferSourceNode != null) {
+        audioBufferSourceNode.stop();
+      }
+      audioBufferSourceNode = null;
+      audioBufferSourceNode = audioCtx.createBufferSource();
+      audioBufferSourceNode.buffer = buffer;
+      audioBufferSourceNode.connect(audioCtx.destination);
+      audioBufferSourceNode.connect(analyser);
+      audioBufferSourceNode.loop = true;
+      audioBufferSourceNode.start(0);
+    });
+  };
+  fr.readAsArrayBuffer(file);
 };
 </script>
 
@@ -88,6 +121,9 @@ let loadFile = (e: Event) => {
 .song {
   color: #000;
   float: left;
+}
+.song:hover {
+  cursor: pointer;
 }
 .selected {
   color: #31c27c;
