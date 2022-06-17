@@ -1,4 +1,9 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
+import {
+  createRouter,
+  createWebHashHistory,
+  RouteRecordRaw,
+  createWebHistory,
+} from "vue-router";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -11,10 +16,14 @@ const routes: Array<RouteRecordRaw> = [
       import(/* webpackChunkName: "index" */ "../pages/index.vue"),
   },
 ];
-
 const router = createRouter({
-  history: createWebHashHistory(),
+  //根目录
+  history: createWebHistory("/"),
   routes,
 });
+// const router = createRouter({
+//   history: createWebHashHistory(),
+//   routes,
+// });
 
 export default router;
