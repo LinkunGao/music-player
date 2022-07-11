@@ -1,5 +1,12 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
+import Vue from "vue";
+import VueGtag from "vue-gtag";
 
-createApp(App).use(router).mount("#app");
+const a = createApp(App);
+a.use(router).mount("#app");
+
+a.use(VueGtag, {
+  config: { id: "G-KB7T3J4T20" },
+});
